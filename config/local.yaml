@@ -1,12 +1,11 @@
 environment: "local" #local, prod, dev
-postgres:
-  host: localhost
-  port: 5432
-  db_name: postgres
-  pool:
-    max_open_conns: 25
-    max_idle_conns: 10
-    conn_max_lifetime: 1h
+sqlite:
+  storage_path: "./data/app.db"
+#POOL Config if later on changed to some better database
+#  pool:
+#    max_open_conns: 25
+#    max_idle_conns: 10
+#    conn_max_lifetime: 1h
 http_server:
   address: "8080"
   idle_timeout: 60s
