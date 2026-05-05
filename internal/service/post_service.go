@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Asilbeek1/mini-twitter-api/internal/domain"
-	"github.com/Asilbeek1/mini-twitter-api/internal/repository"
+	repository "github.com/Asilbeek1/mini-twitter-api/internal/repository/postgres"
 )
 
 var ErrForbidden = errors.New("You don`t own this post")
@@ -40,6 +40,10 @@ func (s *PostService) CreatePost(input domain.CreatePostInput) (*domain.Post, er
 	return post, nil
 }
 
+func (s *PostService) GetPost(id int64) (*domain.Post, error) {
+	return s.postRepo.GetByID(id)
+}
+
 func (s *PostService) GetFeed(page, pageSize int) ([]*domain.PostWithAuthor, error) {
 	if pageSize > 100 {
 		pageSize = 100 // cap page size
@@ -69,7 +73,7 @@ func (s *PostService) UpdatePost(callerID, postID int64, input domain.UpdatePost
 	return s.postRepo.Update(postID, &input)
 }
 
-func (s *PostService) DeletePost(callerID int64, callerRole domain.Role, postID int64) error {
+func (s *PostService) DeletePost(callerID int64, postID int64) error {
 	post, err := s.postRepo.GetByID(postID)
 	if errors.Is(err, repository.ErrNotFound) {
 		return repository.ErrNotFound
@@ -78,7 +82,7 @@ func (s *PostService) DeletePost(callerID int64, callerRole domain.Role, postID 
 		return err
 	}
 
-	if post.UserID != callerID && callerRole != domain.RoleAdmin {
+	if post.UserID != callerID {
 		return ErrForbidden
 	}
 

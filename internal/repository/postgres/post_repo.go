@@ -1,4 +1,4 @@
-package repository
+package postgresdb
 
 import (
 	"database/sql"
@@ -19,19 +19,21 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 func (r *PostRepository) Create(p *domain.Post) (int64, error) {
 	query := `
         INSERT INTO posts (user_id, title, description)
-        VALUES (?, ?, ?)`
+        VALUES ($1, $2, $3)
+        RETURNING id`
 
-	result, err := r.db.Exec(query, p.UserID, p.Title, p.Description)
+	var id int64
+	err := r.db.QueryRow(query, p.UserID, p.Title, p.Description).Scan(&id)
 	if err != nil {
 		return 0, fmt.Errorf("create post: %w", err)
 	}
-	return result.LastInsertId()
+	return id, nil
 }
 
 func (r *PostRepository) GetByID(id int64) (*domain.Post, error) {
 	query := `
         SELECT id, user_id, title, description, created_at, updated_at
-        FROM posts WHERE id = ?`
+        FROM posts WHERE id = $1`
 
 	p := &domain.Post{}
 	err := r.db.QueryRow(query, id).Scan(
@@ -53,7 +55,7 @@ func (r *PostRepository) ListFeed(limit, offset int) ([]*domain.PostWithAuthor, 
         FROM posts p
         JOIN users u ON u.id = p.user_id
         ORDER BY p.created_at DESC
-        LIMIT ? OFFSET ?`
+        LIMIT $1 OFFSET $2`
 
 	rows, err := r.db.Query(query, limit, offset)
 	if err != nil {
@@ -78,9 +80,9 @@ func (r *PostRepository) ListFeed(limit, offset int) ([]*domain.PostWithAuthor, 
 func (r *PostRepository) ListByUser(userID int64, limit, offset int) ([]*domain.Post, error) {
 	query := `
         SELECT id, user_id, title, description, created_at, updated_at
-        FROM posts WHERE user_id = ?
+        FROM posts WHERE user_id = $1
         ORDER BY created_at DESC
-        LIMIT ? OFFSET ?`
+        LIMIT $2 OFFSET $3`
 
 	rows, err := r.db.Query(query, userID, limit, offset)
 	if err != nil {
@@ -102,17 +104,20 @@ func (r *PostRepository) ListByUser(userID int64, limit, offset int) ([]*domain.
 func (r *PostRepository) Update(id int64, input *domain.UpdatePostInput) error {
 	query := "UPDATE posts SET updated_at = CURRENT_TIMESTAMP"
 	args := []any{}
+	placeholder := 1
 
 	if input.Title != nil {
-		query += ", title = ?"
+		query += fmt.Sprintf(", title = $%d", placeholder)
 		args = append(args, *input.Title)
+		placeholder++
 	}
 	if input.Description != nil {
-		query += ", description = ?"
+		query += fmt.Sprintf(", description = $%d", placeholder)
 		args = append(args, *input.Description)
+		placeholder++
 	}
 
-	query += " WHERE id = ?"
+	query += fmt.Sprintf(" WHERE id = $%d", placeholder)
 	args = append(args, id)
 
 	result, err := r.db.Exec(query, args...)
@@ -127,7 +132,7 @@ func (r *PostRepository) Update(id int64, input *domain.UpdatePostInput) error {
 }
 
 func (r *PostRepository) Delete(id int64) error {
-	result, err := r.db.Exec("DELETE FROM posts WHERE id = ?", id)
+	result, err := r.db.Exec("DELETE FROM posts WHERE id = $1", id)
 	if err != nil {
 		return fmt.Errorf("delete post: %w", err)
 	}

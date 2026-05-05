@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Asilbeek1/mini-twitter-api/internal/domain"
-	"github.com/Asilbeek1/mini-twitter-api/internal/repository"
+	repository "github.com/Asilbeek1/mini-twitter-api/internal/repository/postgres"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -33,15 +33,14 @@ func (s *UserService) Register(input domain.CreateUserInput) (*domain.User, erro
 	if err != nil {
 		return nil, fmt.Errorf("hash password: %w", err)
 	}
-	u := *&domain.User{
+	u := &domain.User{
 		Username:     input.Username,
 		Email:        input.Email,
 		FirstName:    input.FirstName,
 		PasswordHash: string(hash),
-		Role:         domain.RoleUser,
 	}
 
-	id, err := s.repo.Create(&u)
+	id, err := s.repo.Create(u)
 	if errors.Is(err, repository.ErrDuplicateEntry) {
 		return nil, ErrDuplicateUser
 	}
@@ -49,7 +48,7 @@ func (s *UserService) Register(input domain.CreateUserInput) (*domain.User, erro
 		return nil, err
 	}
 	u.ID = id
-	return &u, nil
+	return u, nil
 }
 
 func (s *UserService) Login(email, password string) (*domain.User, error) {
@@ -83,6 +82,16 @@ func (s *UserService) UpdateProfile(callerID, targetID int64, input domain.Updat
 		return ErrUnauthorized
 	}
 	err := s.repo.Update(targetID, &input)
+	if errors.Is(err, repository.ErrNotFound) {
+		return ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (s *UserService) DeleteUser(id int64) error {
+	err := s.repo.Delete(id)
 	if errors.Is(err, repository.ErrNotFound) {
 		return ErrNotFound
 	}
