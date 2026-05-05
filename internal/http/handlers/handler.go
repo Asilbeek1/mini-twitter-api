@@ -7,10 +7,11 @@ import (
 )
 
 type Handler struct {
-	repo *repo.Repository
-	log  *slog.Logger
+	postRepo *repo.PostRepository
+	userRepo *repo.UserRepository
+	log      *slog.Logger
 }
 
-func New(repo *repo.Repository, log *slog.Logger) *Handler {
-	return &Handler{repo: repo, log: log}
+func New(log *slog.Logger) *Handler {
+	return &Handler{log: log}
 }
