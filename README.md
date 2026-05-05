@@ -17,17 +17,17 @@ A small Twitter-like API built in Go with PostgreSQL, Redis, and JWT authenticat
 You must create your own .env file before running the application
    ```bash
    #Database Credentials
-DB_USER=your_db_user
-DB_PASSWORD=your_db_password
-DB_NAME=your_db_name
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
+   DB_NAME=your_db_name
 
-#Config path
-CONFIG_PATH=config/local.yaml
+   #Config path
+   CONFIG_PATH=config/local.yaml
 
 
-#JWT Keys
-ACCESS_KEY=your_access_key_here
-REFRESH_KEY=your_refresh_key_here
+   #JWT Keys
+   ACCESS_KEY=your_access_key_here
+   REFRESH_KEY=your_refresh_key_here
    ```
 
 2. Start the app and dependencies:
