@@ -1,17 +1,17 @@
-package storage
+package postgres
 
 import (
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
-	_ "github.com/golang-migrate/migrate/v4/database/sqlite3"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func runMigrations(storagePath string) error {
+func runMigrations(dsn string) error {
 	m, err := migrate.New(
 		"file://migrations",
-		"sqlite3://"+storagePath,
+		dsn,
 	)
 	if err != nil {
 		log.Fatal("migration initialization error: ", err)

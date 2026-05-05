@@ -1,13 +1,25 @@
 environment: "local" #local, prod, dev
-sqlite:
-  storage_path: "./data/app.db"
-#POOL Config if later on changed to some better database
-#  pool:
-#    max_open_conns: 25
-#    max_idle_conns: 10
-#    conn_max_lifetime: 1h
+postgres:
+  host: localhost
+  port: 5432
+  pool:
+    max_open_conns: 25
+    max_idle_conns: 10
+    conn_max_lifetime: 1h
+redis:
+  addr: "localhost:6379"
+  Password: ""
+  db: 0
 http_server:
   address: "8080"
   idle_timeout: 60s
   read_timeout: 4s
   write_timeout: 4s
+jwt:
+  access_secret: ${ACCESS_KEY}
+  refresh_secret: ${REFRESH_KEY}
+  access_ttl: 15m
+  refresh_ttl: 168h
+rate_limit:
+  limit: 10
+  window: 1m

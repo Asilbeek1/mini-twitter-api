@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: twitter_postgres
+    restart: always
+
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+
+    ports:
+      - "5432:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: redis_cache
+    restart: always
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+
+  app:
+    build: .
+    container_name: mini_twitter_api
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "8080:8080"
+    restart: always
+
+volumes:
+  postgres_data:
+  redis_data:
