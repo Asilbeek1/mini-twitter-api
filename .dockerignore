@@ -1,0 +1,11 @@
+.git
+.gitignore
+Dockerfile
+docker-compose.yml
+**/node_modules
+**/*.log
+**/*.tmp
+**/*.swp
+**/*.bak
+*.md
+.env

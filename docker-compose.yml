@@ -25,6 +25,22 @@ services:
     volumes:
       - redis_data:/data
 
+  app:
+    build: .
+    container_name: mini_twitter_api
+    depends_on:
+      - postgres
+      - redis
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - REDIS_ADDR=redis:6379
+    ports:
+      - "8080:8080"
+    restart: always
+
 volumes:
   postgres_data:
   redis_data:

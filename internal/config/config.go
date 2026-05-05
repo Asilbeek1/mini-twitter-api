@@ -18,8 +18,8 @@ type Config struct {
 }
 
 type PostgresConfig struct {
-	Host       string     `yaml:"host" env-required:"true"`
-	Port       string     `yaml:"port" env-required:"true"`
+	Host       string     `yaml:"host" env:"POSTGRES_HOST" env-default:"localhost" env-required:"true"`
+	Port       string     `yaml:"port" env:"POSTGRES_PORT" env-default:"5432" env-required:"true"`
 	User       string     `env:"DB_USER" env-required:"true"`
 	Password   string     `env:"DB_PASSWORD" env-required:"true"`
 	Name       string     `env:"DB_NAME" env-required:"true"`
@@ -27,9 +27,9 @@ type PostgresConfig struct {
 }
 
 type RedisConfig struct {
-	Addr     string `yaml:"addr" env-default:"localhost:6379"`
-	Password string `yaml:"password" env-default:""`
-	DB       int    `yaml:"db" env-default:"0"`
+	Addr     string `yaml:"addr" env:"REDIS_ADDR" env-default:"localhost:6379"`
+	Password string `yaml:"password" env:"REDIS_PASSWORD" env-default:""`
+	DB       int    `yaml:"db" env:"REDIS_DB" env-default:"0"`
 }
 
 type HTTPServer struct {
