@@ -43,7 +43,7 @@ You must create your own .env file before running the application
 ## API endpoints
 
 ### Public
-
+- `POST /api/v1/health` — check if the API is working (returns OK if everythihng is good)
 - `POST /api/v1/register` — create a new user
 - `POST /api/v1/login` — get access + refresh tokens
 
